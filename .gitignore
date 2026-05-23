@@ -11,3 +11,6 @@ uploads/*
 debug.log
 *.log
 .artemis-session/
+agents/
+*.zip
+desktop.ini
