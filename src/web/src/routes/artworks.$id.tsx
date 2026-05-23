@@ -75,7 +75,7 @@ export function ArtworkDetailPage() {
     mutationFn: () => api.delete(`/api/artworks/${id}`),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["artworks"] });
-      await navigate({ to: "/" });
+      await navigate({ to: "/artworks" });
     }
   });
   const upload = useMutation({
@@ -92,7 +92,7 @@ export function ArtworkDetailPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      <Link className="mb-6 inline-block text-sm underline" to="/">
+      <Link className="mb-6 inline-block text-sm underline" to="/artworks">
         Back to artworks
       </Link>
       <section className="grid gap-8 lg:grid-cols-[360px_1fr]">

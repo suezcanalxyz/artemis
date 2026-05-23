@@ -93,7 +93,7 @@ export function HomePage() {
           <button
             onClick={() => {
               authStore.clear();
-              navigate({ to: "/login" });
+              navigate({ to: "/" });
             }}
           >
             Log out

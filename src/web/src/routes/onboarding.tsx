@@ -476,7 +476,7 @@ export function OnboardingPage() {
       });
       setStep("done");
       window.setTimeout(() => {
-        void navigate({ to: "/" });
+        void navigate({ to: "/artworks" });
       }, 2000);
     } catch (submitError) {
       setError(

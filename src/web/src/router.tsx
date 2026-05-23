@@ -11,6 +11,10 @@ import { ArtworkDetailPage } from "./routes/artworks.$id";
 import { DomainsPage } from "./routes/domains";
 import { RegistrarGuidePage } from "./routes/guides.$registrar";
 import { HomePage } from "./routes/index";
+import { LandingCollaboratePage } from "./routes/landing-collaborate";
+import { LandingHomePage } from "./routes/landing-home";
+import { LandingHowToUsePage } from "./routes/landing-how-to-use";
+import { LandingProjectPage } from "./routes/landing-project";
 import { LoginPage } from "./routes/login";
 import { OnboardingPage } from "./routes/onboarding";
 import { OpportunitiesPage } from "./routes/opportunities";
@@ -26,9 +30,45 @@ const rootRoute = createRootRoute({
   )
 });
 
+// Public landing routes
+const landingHomeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  beforeLoad: () => {
+    if (!authStore.getAccess()) return;
+    if (authStore.isOnboardingCompleted()) throw redirect({ to: "/artworks" });
+    throw redirect({ to: "/onboarding" });
+  },
+  component: LandingHomePage
+});
+
+const landingProjectRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/project",
+  component: LandingProjectPage
+});
+
+const landingHowToUseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/how-to-use",
+  component: LandingHowToUsePage
+});
+
+const landingCollaborateRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/collaborate",
+  component: LandingCollaboratePage
+});
+
+// Auth routes
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/login",
+  beforeLoad: () => {
+    if (!authStore.getAccess()) return;
+    if (authStore.isOnboardingCompleted()) throw redirect({ to: "/artworks" });
+    throw redirect({ to: "/onboarding" });
+  },
   component: LoginPage
 });
 
@@ -41,21 +81,18 @@ const onboardingRoute = createRoute({
   component: OnboardingPage
 });
 
-const homeRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  beforeLoad: () => {
-    if (!authStore.getAccess()) throw redirect({ to: "/login" });
-    if (!authStore.isOnboardingCompleted())
-      throw redirect({ to: "/onboarding" });
-  },
-  component: HomePage
-});
-
+// App routes (require full auth)
 function requireFullAuth() {
   if (!authStore.getAccess()) throw redirect({ to: "/login" });
   if (!authStore.isOnboardingCompleted()) throw redirect({ to: "/onboarding" });
 }
+
+const artworksRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/artworks",
+  beforeLoad: requireFullAuth,
+  component: HomePage
+});
 
 const artworkRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -107,9 +144,13 @@ const guideRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
-  homeRoute,
+  landingHomeRoute,
+  landingProjectRoute,
+  landingHowToUseRoute,
+  landingCollaborateRoute,
   loginRoute,
   onboardingRoute,
+  artworksRoute,
   artworkRoute,
   domainsRoute,
   profileRoute,

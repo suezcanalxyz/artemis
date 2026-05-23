@@ -76,7 +76,7 @@ export function KnowledgePage() {
         <div className="flex gap-4 text-sm underline">
           <Link to="/requests">Requests</Link>
           <Link to="/opportunities">Opportunities</Link>
-          <Link to="/">Catalog</Link>
+          <Link to="/artworks">Catalog</Link>
         </div>
       </header>
 

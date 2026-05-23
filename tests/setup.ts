@@ -34,7 +34,8 @@ if (!globalThis.__artemisTestHooksRegistered) {
 
   beforeEach(async () => {
     await sql`
-      truncate table knowledge_chunks, knowledge_documents, artist_request_sources, artist_requests, opportunities, opportunity_sources,
+      truncate table collaborator_requests, waitlist, whitelist_codes,
+      knowledge_chunks, knowledge_documents, artist_request_sources, artist_requests, opportunities, opportunity_sources,
       domain_health_checks, audit_log, artwork_projects, project_collaborators,
       projects, relationships, domains, media_assets, artworks, profiles, users
       restart identity cascade

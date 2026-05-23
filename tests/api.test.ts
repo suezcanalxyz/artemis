@@ -56,6 +56,72 @@ describe("api", () => {
     expect((await request(limitedApp).get("/limited")).status).toBe(429);
   });
 
+  it("stores waitlist leads and collaborator requests", async () => {
+    expect(
+      (
+        await request(app)
+          .post("/api/landing/waitlist")
+          .send({ email: "waitlist@example.com" })
+      ).status
+    ).toBe(200);
+    expect(
+      (
+        await request(app).post("/api/landing/collaborate").send({
+          name: "Studio Rossi",
+          email: "collab@example.com",
+          background: "Installation and moving image practice",
+          message: "Interested in evaluation and structured annotation."
+        })
+      ).status
+    ).toBe(200);
+    const [waitlistRow] = await sql<{ email: string }[]>`
+      select email from waitlist where email = ${"waitlist@example.com"}
+    `;
+    const [collabRow] = await sql<{ email: string; name: string }[]>`
+      select email, name from collaborator_requests
+      where email = ${"collab@example.com"}
+    `;
+    expect(waitlistRow.email).toBe("waitlist@example.com");
+    expect(collabRow.name).toBe("Studio Rossi");
+  });
+
+  it("issues and consumes whitelist invite tokens", async () => {
+    await sql`
+      insert into whitelist_codes (code, note)
+      values (${"BETA-ACCESS-01"}, ${"API test"})
+    `;
+    const invite = await request(app)
+      .post("/api/landing/whitelist/use")
+      .send({ code: "beta-access-01" });
+    expect(invite.status).toBe(200);
+
+    const register = await request(app).post("/api/auth/register").send({
+      email: "invite-user@example.com",
+      password: "password123",
+      inviteToken: invite.body.data.inviteToken
+    });
+    expect(register.status).toBe(201);
+
+    const [usedCode] = await sql<
+      { used_by: string | null; used_at: string | null }[]
+    >`
+      select used_by, used_at
+      from whitelist_codes
+      where code = ${"BETA-ACCESS-01"}
+    `;
+    expect(usedCode.used_by).toBeTruthy();
+    expect(usedCode.used_at).toBeTruthy();
+  });
+
+  it("rejects invalid invite tokens", async () => {
+    const register = await request(app).post("/api/auth/register").send({
+      email: "bad-invite@example.com",
+      password: "password123",
+      inviteToken: "missing-token"
+    });
+    expect(register.status).toBe(403);
+  });
+
   it("enforces artwork visibility across all levels", async () => {
     const owner = await registerAndLogin("owner@example.com");
     const related = await registerAndLogin("related@example.com");

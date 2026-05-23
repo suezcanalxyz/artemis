@@ -130,7 +130,7 @@ export function OpportunitiesPage() {
         </div>
         <div className="flex gap-4 text-sm underline">
           <Link to="/requests">Requests</Link>
-          <Link to="/">Catalog</Link>
+          <Link to="/artworks">Catalog</Link>
         </div>
       </header>
 

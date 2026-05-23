@@ -11,6 +11,10 @@ const credentialsSchema = z.object({
   password: z.string().min(8)
 });
 
+const registerSchema = credentialsSchema.extend({
+  inviteToken: z.string().optional()
+});
+
 const refreshSchema = z.object({
   refreshToken: z.string().min(1)
 });
@@ -19,8 +23,12 @@ router.use(ipRateLimit);
 
 router.post("/register", async (req, res, next) => {
   try {
-    const body = credentialsSchema.parse(req.body);
-    const result = await authService.register(body.email, body.password);
+    const body = registerSchema.parse(req.body);
+    const result = await authService.register(
+      body.email,
+      body.password,
+      body.inviteToken
+    );
     res.status(201).json({ data: result, meta: {} });
   } catch (error) {
     next(error);

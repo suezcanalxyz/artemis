@@ -19,6 +19,7 @@ import internalCaddyRoutes from "./routes/internalCaddy.js";
 import opportunityRoutes from "./routes/opportunities.js";
 import opportunitySourceRoutes from "./routes/opportunitySources.js";
 import onboardingRoutes from "./routes/onboarding.js";
+import landingRoutes from "./routes/landing.js";
 
 export function createApp() {
   const app = express();
@@ -83,6 +84,7 @@ export function createApp() {
   app.use("/api/opportunities", opportunityRoutes);
   app.use("/api/opportunity-sources", opportunitySourceRoutes);
   app.use("/api/onboarding", onboardingRoutes);
+  app.use("/api/landing", landingRoutes);
   app.use("/internal/caddy", internalCaddyRoutes);
 
   if (config.NODE_ENV === "production") {

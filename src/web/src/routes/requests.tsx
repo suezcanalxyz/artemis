@@ -118,7 +118,7 @@ export function RequestsPage() {
         </div>
         <div className="flex gap-4 text-sm underline">
           <Link to="/profile">Profile</Link>
-          <Link to="/">Back to catalog</Link>
+          <Link to="/artworks">Back to catalog</Link>
         </div>
       </header>
 

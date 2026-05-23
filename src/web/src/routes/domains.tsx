@@ -74,7 +74,7 @@ export function DomainsPage() {
           </p>
           <h1 className="font-serif text-4xl">Publishing surface</h1>
         </div>
-        <Link className="text-sm underline" to="/">
+        <Link className="text-sm underline" to="/artworks">
           Back to catalog
         </Link>
       </header>

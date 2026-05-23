@@ -10,10 +10,16 @@ Artemis is a workspace for artists and studios that currently includes:
 - M4B verified source intake: source registry, opportunity review states, verified opportunity attachment to requests
 - Phase C foundation: richer onboarding profile questionnaire with strategic, language, collaboration, and privacy fields
 - Phase C/E follow-through: profile-aware draft generation and a dedicated profile questionnaire editor
+- Phase F landing slice: public home, project, how-to-use, waitlist, whitelist entry, and collaborator intake
 
 Current primary routes:
 
-- `/` catalog
+- `/` public landing home
+- `/project` public project page
+- `/how-to-use` public usage flow
+- `/collaborate` public collaborator intake
+- `/login` invite-aware login
+- `/artworks` catalog workspace
 - `/onboarding` role, plan, and profile setup
 - `/profile` ongoing profile questionnaire editing
 - `/artworks/:id` artwork detail
@@ -30,6 +36,7 @@ API surface now includes:
 - `/api/opportunities`
 - `/api/opportunity-sources`
 - `/api/onboarding`
+- `/api/landing`
 
 Setup:
 
@@ -48,6 +55,11 @@ docker compose up -d postgres redis
 npm run migrate
 npm run dev
 ```
+
+Open:
+
+- landing: `http://localhost:5173`
+- API during dev: `http://localhost:3000`
 
 If `localhost:3000` is already in use on your machine, keep the checked-in
 database and Redis ports (`5433` and `6380`) and temporarily override only the

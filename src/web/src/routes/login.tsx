@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,22 +17,35 @@ type FormValues = z.infer<typeof schema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"register" | "login">("register");
+  const isBeta = !!sessionStorage.getItem("inviteToken");
+  const [mode, setMode] = useState<"register" | "login">(
+    isBeta ? "register" : "login"
+  );
   const [errorMessage, setErrorMessage] = useState("");
   const form = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   async function onSubmit(values: FormValues) {
     try {
       setErrorMessage("");
+      const inviteToken = sessionStorage.getItem("inviteToken") ?? undefined;
+
       const result = await api.post<{
         accessToken: string;
         refreshToken: string;
         user: { email: string; onboardingCompleted?: boolean };
-      }>(`/api/auth/${mode}`, values);
+      }>(`/api/auth/${mode}`, {
+        ...values,
+        ...(mode === "register" && inviteToken ? { inviteToken } : {})
+      });
+
+      if (mode === "register" && inviteToken) {
+        sessionStorage.removeItem("inviteToken");
+      }
+
       authStore.set(result);
       const needsOnboarding =
         mode === "register" || result.user?.onboardingCompleted === false;
-      await navigate({ to: needsOnboarding ? "/onboarding" : "/" });
+      await navigate({ to: needsOnboarding ? "/onboarding" : "/artworks" });
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Authentication failed"
@@ -47,23 +60,42 @@ export function LoginPage() {
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
             Artemis
           </p>
-          <h1 className="font-serif text-5xl leading-none">
-            Catalog your practice with custody intact.
-          </h1>
-          <p className="max-w-xl text-sm text-stone-600">
-            A minimal workspace for artists documenting works, media, and
-            metadata without platform noise.
-          </p>
+          {isBeta ? (
+            <>
+              <h1 className="font-serif text-5xl leading-none">
+                Welcome to the beta.
+              </h1>
+              <p className="max-w-xl text-sm text-stone-600">
+                Your invite is valid for one hour. Create an account to activate
+                it and start cataloging your practice.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="font-serif text-5xl leading-none">
+                Login for existing members.
+              </h1>
+              <p className="max-w-xl text-sm text-stone-600">
+                Artemis is currently invite-only. If you do not have a code yet,
+                return to the home page to join the waitlist.
+              </p>
+            </>
+          )}
+          <div className="pt-2 text-sm underline">
+            <Link to="/">Back to home</Link>
+          </div>
         </section>
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="flex gap-2 text-sm">
-            <button
-              className="underline"
-              type="button"
-              onClick={() => setMode("register")}
-            >
-              Sign up
-            </button>
+            {isBeta ? (
+              <button
+                className="underline"
+                type="button"
+                onClick={() => setMode("register")}
+              >
+                Sign up
+              </button>
+            ) : null}
             <button
               className="underline"
               type="button"
@@ -86,6 +118,12 @@ export function LoginPage() {
           <Button type="submit">
             {mode === "register" ? "Create account" : "Enter workspace"}
           </Button>
+          {!isBeta && mode === "login" ? (
+            <p className="text-sm text-stone-500">
+              New accounts are activated from a whitelist code during the
+              private beta.
+            </p>
+          ) : null}
         </form>
       </div>
     </main>

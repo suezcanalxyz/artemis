@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { config } from "../config.js";
 import { writeAuditLog } from "../lib/audit.js";
 import { sql } from "../lib/db.js";
 import { AppError, validationError } from "../lib/errors.js";
 import { hashPassword, verifyPassword } from "../lib/hashing.js";
+import { redis } from "../lib/redis.js";
 import {
   issueSessionTokens,
   revokeRefreshToken,
@@ -26,7 +28,33 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "") || `artist-${randomUUID().slice(0, 8)}`;
 
-export async function register(email: string, password: string) {
+export async function register(
+  email: string,
+  password: string,
+  inviteToken?: string
+) {
+  let whitelistCodeId: string | null = null;
+
+  if (!inviteToken && config.NODE_ENV !== "test") {
+    throw new AppError(
+      403,
+      "INVITE_REQUIRED",
+      "Registration is currently invite-only."
+    );
+  }
+
+  if (inviteToken) {
+    const codeId = await redis.get(`invite:${inviteToken}`);
+    if (!codeId) {
+      throw new AppError(
+        403,
+        "INVITE_REQUIRED",
+        "This invite link is invalid or expired."
+      );
+    }
+    whitelistCodeId = codeId;
+  }
+
   const existing = await sql<{ id: string }[]>`
     select id from users where email = ${email}
   `;
@@ -50,6 +78,15 @@ export async function register(email: string, password: string) {
     select new_user.id, new_user.email, new_user.password_hash, new_profile.profile_id
     from new_user join new_profile on new_profile.user_id = new_user.id
   `;
+
+  if (inviteToken && whitelistCodeId) {
+    await sql`
+      update whitelist_codes
+      set used_at = now(), used_by = ${created.id}
+      where id = ${whitelistCodeId}
+    `;
+    await redis.del(`invite:${inviteToken}`);
+  }
 
   const tokens = await issueSessionTokens({
     userId: created.id,
