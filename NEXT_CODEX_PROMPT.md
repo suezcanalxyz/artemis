@@ -1,40 +1,51 @@
 You are continuing development of ARTEMIS.
 
-First read:
+Read first:
 
-- AGENTS.md
-- ARTEMIS_CODEX_DEPLOYMENT_PIPELINE.md
-- docs/ROADMAP.md
-- HANDOFF.md if present
-- NEXT_CODEX_PROMPT.md if present
+- `AGENTS.md`
+- `ARTEMIS_CODEX_DEPLOYMENT_PIPELINE.md`
+- `docs/ROADMAP.md`
+- `HANDOFF.md`
+- `NEXT_CODEX_PROMPT.md`
 
-Do not re-explain the whole product. Use those files as project memory.
+Use the repository as source of truth. Do not restate the product vision.
 
 Current milestone:
-phase-c
 
-Current subtask:
-Rich profile questionnaire foundation
+- `phase-c / phase-e bridge`
 
-Recent changed files:
+Current state already completed:
 
-- M README.md
-- M src/routes/onboarding.ts
-- M src/services/onboardingService.ts
-- M tests/api.test.ts
-- migrations/011_profile_questionnaire.sql
+- richer profile questionnaire persisted in the backend
+- profile-aware deterministic draft generation in `src/services/requestDraftService.ts`
+- dedicated frontend profile editor at `/profile`
+- shared questionnaire component and payload helpers
+- tests, build, and deploy smoke passed
+- latest pushed commit: `75e0c9f feat: make profiles editable and request-aware`
 
-Operating rules:
+Next vertical slice:
 
-- Keep planning short.
-- Audit only files relevant to this milestone.
-- Implement immediately after the plan.
-- Work in vertical slices.
-- Do not create fake real-world data.
-- Do not scrape uncontrolled sources.
-- Do not commit .env, node_modules, uploads, logs or test results.
-- No file should exceed 220 lines.
-- Every new feature must include validation, tests and docs where relevant.
-- If context/credits are running low, stop implementation and write HANDOFF.md and NEXT_CODEX_PROMPT.md.
+1. Audit only:
+   - `src/web/src/routes/requests.$id.tsx`
+   - `src/services/requestDraftService.ts`
+   - any new small UI helpers you introduce
+2. Make `profile_context` a first-class section in the request detail UI:
+   - summarize display name, focus, languages, goals, collaboration interests, privacy
+   - separate it visually from generic generated output
+   - keep provenance and confidence visible
+3. Reduce file bloat where practical:
+   - avoid making `requests.$id.tsx` or `requestDraftService.ts` larger
+   - prefer extracting compact helper components/functions
+4. Re-run:
+   - `npm.cmd run typecheck`
+   - `npm.cmd run test:api`
+   - `npm.cmd run build`
+   - `APP_URL=http://localhost:3010 npm.cmd run deploy:smoke`
 
-Start by auditing the relevant files, then continue the current subtask.
+Constraints:
+
+- no fake real-world data
+- no uncontrolled scraping
+- keep changes vertical and production-verifiable
+- use `apply_patch` for edits
+- do not commit `.env`, uploads, logs, or generated artifacts

@@ -2,51 +2,77 @@
 
 ## Reason
 
-phase c questionnaire foundation complete
+phase-c-e-progress
 
 ## Current milestone
 
-phase-c
+phase-c / phase-e bridge
 
 ## Current subtask
 
-Rich profile questionnaire foundation
+Profile-aware request workflow and reusable questionnaire editor
 
 ## Branch
 
 main
 
+## Last commit
+
+`75e0c9f feat: make profiles editable and request-aware`
+
+## Completed in this session
+
+- made deterministic request drafts consume stored profile context
+- added a dedicated `/profile` route for editing the questionnaire after onboarding
+- extracted shared questionnaire logic into reusable frontend modules
+- updated onboarding to reuse the shared questionnaire form
+- added profile navigation from catalog and request surfaces
+- verified prod-like health after push
+
 ## Changed files
 
-- M README.md
-- M src/routes/onboarding.ts
-- M src/services/onboardingService.ts
-- M tests/api.test.ts
-- migrations/011_profile_questionnaire.sql
+- `README.md`
+- `src/services/requestDraftService.ts`
+- `src/web/src/components/profile-questionnaire-form.tsx`
+- `src/web/src/lib/profileQuestionnaire.ts`
+- `src/web/src/router.tsx`
+- `src/web/src/routes/index.tsx`
+- `src/web/src/routes/onboarding.tsx`
+- `src/web/src/routes/profile.tsx`
+- `src/web/src/routes/requests.$id.tsx`
+- `src/web/src/routes/requests.tsx`
+- `tests/api.test.ts`
 
 ## Commands run
 
-No commands recorded.
-
-## Known issues
-
-No known issues recorded.
+- `npm.cmd run typecheck`
+- `npm.cmd run test:api`
+- `npm.cmd run build`
+- `git push origin main`
+- `docker compose -p artemis-prod -f docker-compose.prod.yml ps`
+- `APP_URL=http://localhost:3010 npm.cmd run deploy:smoke`
 
 ## Passing checks
 
-Not recorded automatically. Add manually if needed.
+- `typecheck`
+- `test:api`
+- `build`
+- deploy smoke at `http://localhost:3010`
 
-## Failing checks
+## Deployment status
 
-Not recorded automatically. Add manually if needed.
+- `artemis-prod-app-1` healthy on host port `3010`
+- `artemis-prod-postgres-1` healthy
+- `artemis-prod-redis-1` healthy
 
-## Usage note
+## Known issues
 
-Resume manually when Codex usage is available again.
+- large legacy files still exceed the `220` line target from `AGENTS.md`, especially `src/web/src/routes/onboarding.tsx`, `src/web/src/routes/requests.$id.tsx`, and `src/services/requestDraftService.ts`
+- the compose rebuild command exceeded terminal timeout once, but the running stack stayed healthy and smoke passed afterward
 
 ## Next task
 
-Continue from `NEXT_CODEX_PROMPT.md`.
+Continue Phase E by turning the generated `profile_context` into first-class UI on request detail instead of only generic object rendering, then split oversized request/profile files into smaller modules.
 
 ## Safety note
 
