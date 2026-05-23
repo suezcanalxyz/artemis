@@ -17,6 +17,7 @@
     "session:next-prompt": "tsx scripts/session-orchestrator/index.ts next-prompt",
     "deploy:check-env": "tsx scripts/deploy/check-env.ts",
     "deploy:smoke": "tsx scripts/deploy/smoke-test.ts",
+    "landing:create-code": "tsx scripts/landing/create-whitelist-code.ts",
     "db:backup": "bash scripts/deploy/backup-db.sh",
     "db:restore": "bash scripts/deploy/restore-db.sh",
     "format": "prettier --write .",

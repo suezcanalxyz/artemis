@@ -61,6 +61,13 @@ Open:
 - landing: `http://localhost:5173`
 - API during dev: `http://localhost:3000`
 
+Create a beta invite code locally:
+
+```powershell
+npm.cmd run landing:create-code
+npm.cmd run landing:create-code -- --code ART-PRIVATE-01 --note "curator beta"
+```
+
 If `localhost:3000` is already in use on your machine, keep the checked-in
 database and Redis ports (`5433` and `6380`) and temporarily override only the
 app port for that shell:
@@ -89,6 +96,16 @@ npm run deploy:check-env
 npm run deploy:smoke
 curl http://localhost:8088/health
 ```
+
+Production-like local smoke now verifies:
+
+- `/`
+- `/project`
+- `/how-to-use`
+- `/collaborate`
+- `/login`
+- `/api/health`
+- `/api/ready`
 
 Notes:
 
