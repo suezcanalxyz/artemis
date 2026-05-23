@@ -57,6 +57,9 @@ npm run migrate
 npm run deploy:smoke
 ```
 
+If port `3000` is already occupied on the host, set `HOST_PORT` before running
+the production compose stack, for example `HOST_PORT=3010`.
+
 ## Health checks
 
 - `/api/health`

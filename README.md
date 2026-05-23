@@ -70,16 +70,21 @@ Verification:
 npm run typecheck
 npm run test:api
 npm run test:e2e
+npm run deploy:check-env
+npm run deploy:smoke
 curl http://localhost:8088/health
 ```
 
 Notes:
 
 - `.env` is ignored and should stay local.
+- `.env.production` is also ignored and should stay local.
 - Uploads are ignored except for `uploads/.gitkeep`.
 - Docker Desktop must be running before `docker compose up -d postgres redis`
   or `docker compose up --build`, otherwise migrations and app startup will fail
   with connection-refused errors against PostgreSQL and Redis.
+- The production compose stack can be moved off port `3000` by setting
+  `HOST_PORT`, for example `HOST_PORT=3010`.
 - Opportunity refresh uses a manual seed adapter only. It creates clearly labeled test opportunities and does not scrape external websites.
 - Draft generation is deterministic. It only uses request `structured_input`, stored opportunities, and explicit request provenance.
 - Request types in this slice are `opportunity_research`, `funding_research`, `tech_rider`, `procedure`, `presentation`, and `website_update`.

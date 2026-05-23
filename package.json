@@ -16,7 +16,7 @@
     "session:handoff": "tsx scripts/session-orchestrator/index.ts handoff",
     "session:next-prompt": "tsx scripts/session-orchestrator/index.ts next-prompt",
     "deploy:check-env": "tsx scripts/deploy/check-env.ts",
-    "deploy:smoke": "bash scripts/deploy/smoke-test.sh",
+    "deploy:smoke": "tsx scripts/deploy/smoke-test.ts",
     "db:backup": "bash scripts/deploy/backup-db.sh",
     "db:restore": "bash scripts/deploy/restore-db.sh",
     "format": "prettier --write .",

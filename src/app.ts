@@ -26,20 +26,49 @@ export function createApp() {
   app.use(cors({ origin: config.WEB_URL }));
   app.use(pinoHttp({ logger }));
   app.use(express.json());
-  app.get("/health", async (_req, res, next) => {
+
+  async function serviceStatus() {
+    await sql`select 1`;
+    await redis.ping();
+    return {
+      ok: true,
+      services: { database: "ok", redis: "ok" },
+      environment: config.NODE_ENV
+    };
+  }
+
+  app.get(["/health", "/api/health"], async (_req, res, next) => {
     try {
-      await sql`select 1`;
-      await redis.ping();
+      const data = await serviceStatus();
       res.json({
-        data: {
-          ok: true,
-          services: { database: "ok", redis: "ok" },
-          environment: config.NODE_ENV
-        },
+        data,
         meta: {}
       });
     } catch (error) {
       next(error);
+    }
+  });
+  app.get(["/ready", "/api/ready"], async (_req, res) => {
+    try {
+      const data = await serviceStatus();
+      res.json({
+        data,
+        meta: {}
+      });
+    } catch (error) {
+      logger.error({ err: error }, "Readiness check failed");
+      res.status(503).json({
+        data: {
+          ok: false,
+          services: { database: "error", redis: "error" },
+          environment: config.NODE_ENV
+        },
+        error: {
+          code: "SERVICE_UNAVAILABLE",
+          message: "Readiness check failed"
+        },
+        meta: {}
+      });
     }
   });
   app.use(tenantMiddleware);

@@ -605,4 +605,24 @@ describe("api", () => {
     expect(marked.status).toBe(200);
     expect(marked.body.data.status).toBe("ready_for_processing");
   });
+
+  it("serves health on both public paths", async () => {
+    const health = await request(app).get("/health");
+    const apiHealth = await request(app).get("/api/health");
+
+    expect(health.status).toBe(200);
+    expect(apiHealth.status).toBe(200);
+    expect(health.body.data.ok).toBe(true);
+    expect(apiHealth.body.data.services.database).toBe("ok");
+  });
+
+  it("serves readiness on both public paths", async () => {
+    const ready = await request(app).get("/ready");
+    const apiReady = await request(app).get("/api/ready");
+
+    expect(ready.status).toBe(200);
+    expect(apiReady.status).toBe(200);
+    expect(ready.body.data.ok).toBe(true);
+    expect(apiReady.body.data.services.redis).toBe("ok");
+  });
 });
