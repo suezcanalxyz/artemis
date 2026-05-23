@@ -8,44 +8,49 @@ Read first:
 - `HANDOFF.md`
 - `NEXT_CODEX_PROMPT.md`
 
-Use the repository as source of truth. Do not restate the product vision.
+Use repository state as the source of truth.
 
 Current milestone:
 
-- `phase-c / phase-e bridge`
+- `phase-f public landing slice complete`
 
 Current state already completed:
 
-- richer profile questionnaire persisted in the backend
-- profile-aware deterministic draft generation in `src/services/requestDraftService.ts`
-- dedicated frontend profile editor at `/profile`
-- shared questionnaire component and payload helpers
-- tests, build, and deploy smoke passed
-- latest pushed commit: `75e0c9f feat: make profiles editable and request-aware`
+- public landing routes exist at `/`, `/project`, `/how-to-use`, `/collaborate`, `/login`
+- waitlist, whitelist exchange, and collaborator intake exist under `/api/landing`
+- registration is invite-only outside test mode
+- landing confirmation emails exist in `src/services/emailService.ts`
+- authenticated workspace root is now `/artworks`
+- latest pushed commit: `7dcac72 feat: add private beta landing flow`
+- deploy smoke passed on `http://localhost:3010`
 
 Next vertical slice:
 
 1. Audit only:
-   - `src/web/src/routes/requests.$id.tsx`
-   - `src/services/requestDraftService.ts`
-   - any new small UI helpers you introduce
-2. Make `profile_context` a first-class section in the request detail UI:
-   - summarize display name, focus, languages, goals, collaboration interests, privacy
-   - separate it visually from generic generated output
-   - keep provenance and confidence visible
-3. Reduce file bloat where practical:
-   - avoid making `requests.$id.tsx` or `requestDraftService.ts` larger
-   - prefer extracting compact helper components/functions
-4. Re-run:
+   - `src/web/src/routes/profile.tsx`
+   - `src/web/src/routes/index.tsx`
+   - public landing and routing files only if needed
+2. Continue Phase F with the first real public output:
+   - public artist profile route
+   - curated public artworks selection
+   - first dossier/presentation page structure
+3. Keep the system invite-only:
+   - landing remains public
+   - workspace remains authenticated
+   - public outputs must expose only intentionally public records
+4. Prefer small modules:
+   - do not grow already-large files
+   - extract helpers/components where needed
+5. Re-run:
    - `npm.cmd run typecheck`
    - `npm.cmd run test:api`
    - `npm.cmd run build`
-   - `APP_URL=http://localhost:3010 npm.cmd run deploy:smoke`
+   - `$env:APP_URL='http://localhost:3010'; npm.cmd run deploy:smoke`
 
 Constraints:
 
 - no fake real-world data
 - no uncontrolled scraping
-- keep changes vertical and production-verifiable
+- no committed `.env`, uploads, or logs
 - use `apply_patch` for edits
-- do not commit `.env`, uploads, logs, or generated artifacts
+- keep outputs provenance-bound and honest
