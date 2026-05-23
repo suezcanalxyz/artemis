@@ -405,6 +405,13 @@ describe("api", () => {
       "requests-opportunities@example.com"
     );
     await request(app)
+      .patch("/api/onboarding/profile")
+      .set("authorization", `Bearer ${session.accessToken}`)
+      .send({
+        professionalFocus: "Video installation and curatorial research",
+        strategicGoals: ["Residencies in Europe"]
+      });
+    await request(app)
       .post("/api/opportunities/refresh")
       .set("authorization", `Bearer ${session.accessToken}`)
       .send({});
@@ -434,6 +441,12 @@ describe("api", () => {
     expect(
       generated.body.data.generated_output.matched_opportunities[0].note
     ).toContain("Placeholder");
+    expect(
+      generated.body.data.generated_output.profile_context.display_name
+    ).toBeTruthy();
+    expect(
+      generated.body.data.generated_output.profile_context.professional_focus
+    ).toContain("Video installation");
     expect(
       generated.body.data.generated_output.sources.some(
         (source: { kind: string }) => source.kind === "opportunity"
@@ -551,6 +564,13 @@ describe("api", () => {
 
   it("generates a funding research draft", async () => {
     const session = await registerAndLogin("requests-funding@example.com");
+    await request(app)
+      .patch("/api/onboarding/profile")
+      .set("authorization", `Bearer ${session.accessToken}`)
+      .send({
+        professionalFocus: "Outdoor sculpture and public art commissions",
+        collaborationInterests: ["Municipal partners"]
+      });
     const created = await request(app)
       .post("/api/artist-requests")
       .set("authorization", `Bearer ${session.accessToken}`)
@@ -575,6 +595,9 @@ describe("api", () => {
     expect(generated.body.data.generated_output.funding_strategy).toContain(
       "Outdoor sculpture installation"
     );
+    expect(
+      generated.body.data.generated_output.profile_context.professional_focus
+    ).toContain("Outdoor sculpture");
     expect(
       generated.body.data.generated_output.possible_programme_types
     ).toContain("sculpture production support");

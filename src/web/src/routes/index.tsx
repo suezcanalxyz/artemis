@@ -86,6 +86,7 @@ export function HomePage() {
           <h1 className="font-serif text-4xl">Catalog</h1>
         </div>
         <div className="flex gap-4 text-sm underline">
+          <Link to="/profile">Profile</Link>
           <Link to="/opportunities">Opportunities</Link>
           <Link to="/requests">Requests</Link>
           <Link to="/domains">Domains</Link>

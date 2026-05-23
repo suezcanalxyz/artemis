@@ -9,11 +9,13 @@ Artemis is a workspace for artists and studios that currently includes:
 - M4A vertical slice: Artist Operating Desk requests and deterministic placeholder opportunity ingestion
 - M4B verified source intake: source registry, opportunity review states, verified opportunity attachment to requests
 - Phase C foundation: richer onboarding profile questionnaire with strategic, language, collaboration, and privacy fields
+- Phase C/E follow-through: profile-aware draft generation and a dedicated profile questionnaire editor
 
 Current primary routes:
 
 - `/` catalog
 - `/onboarding` role, plan, and profile setup
+- `/profile` ongoing profile questionnaire editing
 - `/artworks/:id` artwork detail
 - `/domains` domain management
 - `/requests` Artist Operating Desk

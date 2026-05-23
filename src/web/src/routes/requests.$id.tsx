@@ -143,9 +143,10 @@ export function RequestDetailPage() {
     <main className="mx-auto max-w-6xl px-6 py-10">
       <header className="mb-8 flex items-end justify-between border-b border-stone-200 pb-6">
         <div>
-          <Link className="mb-4 inline-block text-sm underline" to="/requests">
-            Back to requests
-          </Link>
+          <div className="mb-4 flex gap-4 text-sm underline">
+            <Link to="/requests">Back to requests</Link>
+            <Link to="/profile">Profile</Link>
+          </div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
             {titleCase(request.type)}
           </p>

@@ -116,9 +116,10 @@ export function RequestsPage() {
             implementation.
           </p>
         </div>
-        <Link className="text-sm underline" to="/">
-          Back to catalog
-        </Link>
+        <div className="flex gap-4 text-sm underline">
+          <Link to="/profile">Profile</Link>
+          <Link to="/">Back to catalog</Link>
+        </div>
       </header>
 
       <section className="grid gap-8 lg:grid-cols-[360px_1fr]">

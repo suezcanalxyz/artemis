@@ -2,6 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { api } from "../lib/api";
 import { authStore } from "../lib/auth";
+import { ProfileQuestionnaireForm } from "../components/profile-questionnaire-form";
+import {
+  createEmptyProfileForm,
+  profilePayloadFromForm
+} from "../lib/profileQuestionnaire";
 
 type Role = "artist" | "gallery" | "collector" | "institution";
 type Step = "role" | "plan" | "profile" | "done";
@@ -408,106 +413,6 @@ function PlanStep({
   );
 }
 
-function ProfileStep({
-  values,
-  onChange
-}: {
-  values: {
-    displayName: string;
-    bio: string;
-    location: string;
-    website: string;
-  };
-  onChange: (key: string, value: string) => void;
-}) {
-  return (
-    <div>
-      <p
-        className="mb-3 font-mono text-xs uppercase tracking-[0.2em]"
-        style={{ color: "#7d1f1f" }}
-      >
-        Step 3 of 3
-      </p>
-      <h2 className="mb-2 font-serif text-4xl leading-tight md:text-5xl">
-        Set up
-        <br />
-        your profile.
-      </h2>
-      <p className="mb-10 text-sm" style={{ color: "#888" }}>
-        These fields are optional and can be updated later.
-      </p>
-      <div className="max-w-md space-y-5">
-        {[
-          {
-            key: "displayName",
-            label: "Display name",
-            placeholder: "How you appear publicly"
-          },
-          { key: "location", label: "Location", placeholder: "City, country" },
-          {
-            key: "website",
-            label: "Website",
-            placeholder: "https://your-site.com"
-          }
-        ].map((field) => (
-          <label key={field.key} className="block space-y-1.5">
-            <span
-              className="font-mono text-xs uppercase tracking-widest"
-              style={{ color: "#777" }}
-            >
-              {field.label}
-            </span>
-            <input
-              type="text"
-              value={values[field.key as keyof typeof values]}
-              onChange={(event) => onChange(field.key, event.target.value)}
-              placeholder={field.placeholder}
-              className="w-full bg-transparent px-3 py-2.5 text-sm outline-none transition-colors"
-              style={{
-                border: "1px solid #2a2a2a",
-                color: "#e8e0d8",
-                caretColor: "#7d1f1f"
-              }}
-              onFocus={(event) => {
-                event.target.style.borderColor = "#7d1f1f";
-              }}
-              onBlur={(event) => {
-                event.target.style.borderColor = "#2a2a2a";
-              }}
-            />
-          </label>
-        ))}
-        <label className="block space-y-1.5">
-          <span
-            className="font-mono text-xs uppercase tracking-widest"
-            style={{ color: "#777" }}
-          >
-            Bio
-          </span>
-          <textarea
-            rows={3}
-            value={values.bio}
-            onChange={(event) => onChange("bio", event.target.value)}
-            placeholder="A short description of your practice or organisation"
-            className="w-full resize-none bg-transparent px-3 py-2.5 text-sm outline-none transition-colors"
-            style={{
-              border: "1px solid #2a2a2a",
-              color: "#e8e0d8",
-              caretColor: "#7d1f1f"
-            }}
-            onFocus={(event) => {
-              event.target.style.borderColor = "#7d1f1f";
-            }}
-            onBlur={(event) => {
-              event.target.style.borderColor = "#2a2a2a";
-            }}
-          />
-        </label>
-      </div>
-    </div>
-  );
-}
-
 function DoneStep({ role, plan }: { role: Role; plan: string }) {
   const roleLabel = ROLES.find((entry) => entry.id === role)?.label ?? role;
   const planDef = PLANS[role].find((entry) => entry.id === plan);
@@ -546,12 +451,7 @@ export function OnboardingPage() {
   const [step, setStep] = useState<Step>("role");
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [profile, setProfile] = useState({
-    displayName: "",
-    bio: "",
-    location: "",
-    website: ""
-  });
+  const [profile, setProfile] = useState(createEmptyProfileForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -567,7 +467,7 @@ export function OnboardingPage() {
       await api.post("/api/onboarding/complete", {
         role: selectedRole,
         plan: selectedPlan,
-        ...profile
+        ...profilePayloadFromForm(profile)
       });
       authStore.updateUser({
         onboardingCompleted: true,
@@ -662,7 +562,21 @@ export function OnboardingPage() {
             />
           ) : null}
           {step === "profile" ? (
-            <ProfileStep values={profile} onChange={handleProfileChange} />
+            <div>
+              <p
+                className="mb-3 font-mono text-xs uppercase tracking-[0.2em]"
+                style={{ color: "#7d1f1f" }}
+              >
+                Step 3 of 3
+              </p>
+              <ProfileQuestionnaireForm
+                description="These fields are optional, but they make requests and drafts more profile-aware from the start."
+                onChange={handleProfileChange}
+                theme="dark"
+                title="Set up your profile."
+                values={profile}
+              />
+            </div>
           ) : null}
           {step === "done" && selectedRole && selectedPlan ? (
             <DoneStep role={selectedRole} plan={selectedPlan} />

@@ -14,6 +14,7 @@ import { HomePage } from "./routes/index";
 import { LoginPage } from "./routes/login";
 import { OnboardingPage } from "./routes/onboarding";
 import { OpportunitiesPage } from "./routes/opportunities";
+import { ProfilePage } from "./routes/profile";
 import { RequestDetailPage } from "./routes/requests.$id";
 import { RequestsPage } from "./routes/requests";
 
@@ -70,6 +71,13 @@ const domainsRoute = createRoute({
   component: DomainsPage
 });
 
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/profile",
+  beforeLoad: requireFullAuth,
+  component: ProfilePage
+});
+
 const requestsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/requests",
@@ -104,6 +112,7 @@ const routeTree = rootRoute.addChildren([
   onboardingRoute,
   artworkRoute,
   domainsRoute,
+  profileRoute,
   opportunitiesRoute,
   requestsRoute,
   requestDetailRoute,

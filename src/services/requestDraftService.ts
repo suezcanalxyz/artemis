@@ -45,6 +45,20 @@ type OpportunityMatchRow = {
   review_status: "pending_review" | "verified" | "rejected" | "archived";
 };
 
+type ProfileRow = {
+  display_name: string;
+  role: string;
+  bio: string | null;
+  location: string | null;
+  website: string | null;
+  professional_focus: string | null;
+  practice_areas: string[];
+  working_languages: string[];
+  strategic_goals: string[];
+  collaboration_interests: string[];
+  privacy_mode: string;
+};
+
 type SourceEntry = {
   kind: string;
   source_id: string | null;
@@ -53,6 +67,20 @@ type SourceEntry = {
   excerpt: string | null;
   fetched_at: string | null;
   source_name?: string | null;
+};
+
+type ProfileContext = {
+  display_name: string;
+  role: string;
+  bio: string | null;
+  location: string | null;
+  website: string | null;
+  professional_focus: string | null;
+  practice_areas: string[];
+  working_languages: string[];
+  strategic_goals: string[];
+  collaboration_interests: string[];
+  privacy_mode: string;
 };
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -111,6 +139,22 @@ function toSources(
   }));
 
   return [...manualSources, ...opportunitySources];
+}
+
+function toProfileContext(profile: ProfileRow): ProfileContext {
+  return {
+    display_name: profile.display_name,
+    role: profile.role,
+    bio: profile.bio,
+    location: profile.location,
+    website: profile.website,
+    professional_focus: profile.professional_focus,
+    practice_areas: profile.practice_areas ?? [],
+    working_languages: profile.working_languages ?? [],
+    strategic_goals: profile.strategic_goals ?? [],
+    collaboration_interests: profile.collaboration_interests ?? [],
+    privacy_mode: profile.privacy_mode
+  };
 }
 
 function determineConfidence(sources: SourceEntry[]) {
@@ -176,15 +220,32 @@ async function getMatchedOpportunities(input: Record<string, unknown>) {
     .slice(0, 5);
 }
 
+async function getProfileContext(profileId: string) {
+  const [profile] = await sql<ProfileRow[]>`
+    select display_name, role, bio, location, website, professional_focus,
+           practice_areas, working_languages, strategic_goals,
+           collaboration_interests, privacy_mode
+    from profiles
+    where id = ${profileId}
+  `;
+  if (!profile) throw notFound("Profile not found");
+  return toProfileContext(profile);
+}
+
 function buildOpportunityResearch(
   title: string,
   input: Record<string, unknown>,
   requestSources: RequestSourceRow[],
-  opportunities: OpportunityMatchRow[]
+  opportunities: OpportunityMatchRow[],
+  profile: ProfileContext
 ) {
   const disciplines = asStringArray(input.discipline);
   const geography = asString(input.geography);
-  const applicant = asString(input.applicant_profile);
+  const applicant =
+    asString(input.applicant_profile) ||
+    profile.display_name ||
+    profile.professional_focus ||
+    "";
   const sources = toSources(requestSources, opportunities);
   const missingInformation = [
     !applicant ? "Applicant profile or studio context" : null,
@@ -198,6 +259,7 @@ function buildOpportunityResearch(
       opportunities.length > 0
         ? `${title} currently matches ${opportunities.length} stored opportunities using only the request input and archived sources.`
         : `${title} does not yet match any stored opportunities. The draft is limited to the current request input and archived provenance.`,
+    profile_context: profile,
     recommended_next_steps: [
       "Confirm discipline, geography, and deadline constraints in structured input.",
       "Review matched opportunities and discard any placeholder records that are not relevant.",
@@ -229,14 +291,17 @@ function buildOpportunityResearch(
 function buildFundingResearch(
   input: Record<string, unknown>,
   requestSources: RequestSourceRow[],
-  opportunities: OpportunityMatchRow[]
+  opportunities: OpportunityMatchRow[],
+  profile: ProfileContext
 ) {
   const disciplines = asStringArray(input.discipline);
   const sources = toSources(requestSources, opportunities);
 
   return {
+    profile_context: profile,
     funding_strategy:
       asString(input.project_summary) ||
+      profile.professional_focus ||
       "No project summary was provided. Funding positioning should remain provisional until the project scope is stated explicitly.",
     possible_programme_types: [
       disciplines.length
@@ -259,15 +324,18 @@ function buildFundingResearch(
 function buildTechRider(
   input: Record<string, unknown>,
   requestSources: RequestSourceRow[],
-  opportunities: OpportunityMatchRow[]
+  opportunities: OpportunityMatchRow[],
+  profile: ProfileContext
 ) {
   const sources = toSources(requestSources, opportunities);
   const equipment = asStringArray(input.equipment);
   const installationTimeline = asStringArray(input.installation_timeline);
 
   return {
+    profile_context: profile,
     project_overview:
       asString(input.project_overview) ||
+      profile.professional_focus ||
       asString(input.project_summary) ||
       "Project overview not provided.",
     space_requirements: {
@@ -308,11 +376,13 @@ function buildTechRider(
 function buildProcedure(
   input: Record<string, unknown>,
   requestSources: RequestSourceRow[],
-  opportunities: OpportunityMatchRow[]
+  opportunities: OpportunityMatchRow[],
+  profile: ProfileContext
 ) {
   const sources = toSources(requestSources, opportunities);
 
   return {
+    profile_context: profile,
     objective: asString(input.objective) || "Procedure objective not provided.",
     steps: asStringArray(input.steps).length
       ? asStringArray(input.steps)
@@ -336,11 +406,13 @@ function buildProcedure(
 function buildPresentation(
   input: Record<string, unknown>,
   requestSources: RequestSourceRow[],
-  opportunities: OpportunityMatchRow[]
+  opportunities: OpportunityMatchRow[],
+  profile: ProfileContext
 ) {
   const sources = toSources(requestSources, opportunities);
 
   return {
+    profile_context: profile,
     title:
       asString(input.presentation_title) ||
       asString(input.title) ||
@@ -364,11 +436,13 @@ function buildPresentation(
 function buildWebsiteUpdate(
   input: Record<string, unknown>,
   requestSources: RequestSourceRow[],
-  opportunities: OpportunityMatchRow[]
+  opportunities: OpportunityMatchRow[],
+  profile: ProfileContext
 ) {
   const sources = toSources(requestSources, opportunities);
 
   return {
+    profile_context: profile,
     objective: asString(input.objective) || "Website objective not provided.",
     target_pages: asStringArray(input.target_pages).length
       ? asStringArray(input.target_pages)
@@ -404,26 +478,29 @@ export async function buildDraft(requestId: string, profileId: string) {
 
   const structuredInput = asRecord(request.structured_input);
   const opportunities = await getMatchedOpportunities(structuredInput);
+  const profile = await getProfileContext(profileId);
 
   type Builder = (
     input: Record<string, unknown>,
     sources: RequestSourceRow[],
-    opps: OpportunityMatchRow[]
+    opps: OpportunityMatchRow[],
+    profile: ProfileContext
   ) => { sources: SourceEntry[]; [key: string]: unknown };
 
   const builders: Record<RequestType, Builder> = {
     opportunity_research: (i, s, o) =>
-      buildOpportunityResearch(request.title, i, s, o),
-    funding_research: (i, s, o) => buildFundingResearch(i, s, o),
-    tech_rider: (i, s, o) => buildTechRider(i, s, o),
-    procedure: (i, s, o) => buildProcedure(i, s, o),
-    presentation: (i, s, o) => buildPresentation(i, s, o),
-    website_update: (i, s, o) => buildWebsiteUpdate(i, s, o)
+      buildOpportunityResearch(request.title, i, s, o, profile),
+    funding_research: (i, s, o) => buildFundingResearch(i, s, o, profile),
+    tech_rider: (i, s, o) => buildTechRider(i, s, o, profile),
+    procedure: (i, s, o) => buildProcedure(i, s, o, profile),
+    presentation: (i, s, o) => buildPresentation(i, s, o, profile),
+    website_update: (i, s, o) => buildWebsiteUpdate(i, s, o, profile)
   };
   const generated = builders[request.type](
     structuredInput,
     requestSources,
-    opportunities
+    opportunities,
+    profile
   );
 
   return {
