@@ -11,8 +11,19 @@ const completeSchema = z.object({
   displayName: z.string().max(100).optional(),
   bio: z.string().max(500).optional(),
   location: z.string().max(100).optional(),
-  website: z.string().url().optional().or(z.literal(""))
+  website: z.string().url().optional().or(z.literal("")),
+  professionalFocus: z.string().max(240).optional(),
+  practiceAreas: z.array(z.string().min(1).max(80)).max(12).optional(),
+  workingLanguages: z.array(z.string().min(1).max(40)).max(12).optional(),
+  strategicGoals: z.array(z.string().min(1).max(120)).max(12).optional(),
+  collaborationInterests: z
+    .array(z.string().min(1).max(120))
+    .max(12)
+    .optional(),
+  privacyMode: z.enum(["private", "contacts", "public"]).optional()
 });
+
+const questionnaireSchema = completeSchema.omit({ role: true, plan: true });
 
 router.get("/status", requireAuth, async (req, res, next) => {
   try {
@@ -32,6 +43,20 @@ router.post("/complete", requireAuth, async (req, res, next) => {
       req.user!.profileId,
       req.user!.userId,
       body as Parameters<typeof onboardingService.completeOnboarding>[2]
+    );
+    res.json({ data: result, meta: {} });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/profile", requireAuth, async (req, res, next) => {
+  try {
+    const body = questionnaireSchema.parse(req.body);
+    const result = await onboardingService.updateProfileQuestionnaire(
+      req.user!.profileId,
+      req.user!.userId,
+      body
     );
     res.json({ data: result, meta: {} });
   } catch (error) {

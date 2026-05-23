@@ -267,12 +267,28 @@ describe("api", () => {
         plan: "gallery_professional",
         displayName: "Studio Rossi",
         location: "Valletta, Malta",
-        website: "https://studiorossi.example"
+        website: "https://studiorossi.example",
+        professionalFocus: "Contemporary exhibition production",
+        practiceAreas: ["exhibitions", "artist estates"],
+        workingLanguages: ["English", "Italian"],
+        strategicGoals: ["Expand institutional programme"],
+        collaborationInterests: ["Curators", "Public institutions"],
+        privacyMode: "contacts"
       });
 
     expect(completed.status).toBe(200);
     expect(completed.body.data.role).toBe("gallery");
     expect(completed.body.data.plan).toBe("gallery_professional");
+
+    const status = await request(app)
+      .get("/api/onboarding/status")
+      .set("authorization", `Bearer ${session.accessToken}`);
+
+    expect(status.body.data.professional_focus).toBe(
+      "Contemporary exhibition production"
+    );
+    expect(status.body.data.practice_areas).toContain("exhibitions");
+    expect(status.body.data.privacy_mode).toBe("contacts");
 
     const me = await request(app)
       .get("/api/auth/me")
@@ -297,6 +313,32 @@ describe("api", () => {
 
     expect(completed.status).toBe(422);
     expect(completed.body.error.code).toBe("INVALID_PLAN");
+  });
+
+  it("updates the profile questionnaire after onboarding", async () => {
+    const session = await registerAndLogin("profile-questionnaire@example.com");
+
+    const updated = await request(app)
+      .patch("/api/onboarding/profile")
+      .set("authorization", `Bearer ${session.accessToken}`)
+      .send({
+        professionalFocus: "Artist films and installation",
+        practiceAreas: ["moving image", "installation", "installation"],
+        workingLanguages: ["English", "Italian"],
+        strategicGoals: ["Museum commissions", "Residencies"],
+        collaborationInterests: ["Curators", "Technicians"],
+        privacyMode: "public"
+      });
+
+    expect(updated.status).toBe(200);
+    expect(updated.body.data.professional_focus).toBe(
+      "Artist films and installation"
+    );
+    expect(updated.body.data.practice_areas).toEqual([
+      "moving image",
+      "installation"
+    ]);
+    expect(updated.body.data.privacy_mode).toBe("public");
   });
 
   it("updates artist request structured input", async () => {

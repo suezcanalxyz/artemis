@@ -11,43 +11,18 @@ First read:
 Do not re-explain the whole product. Use those files as project memory.
 
 Current milestone:
-workflow-install
+phase-c
 
 Current subtask:
-Install Codex workflow pack
+Rich profile questionnaire foundation
 
 Recent changed files:
 
-- .dockerignore
-- .env.example
-- .env.production.example
-- .gitignore
-- .husky/
-- .prettierrc.json
-- AGENTS.md
-- ARTEMIS_CODEX_DEPLOYMENT_PIPELINE.md
-- Caddyfile
-- Dockerfile
-- README.md
-- agents/
-- "artemis-federated-cultural-backend (3).zip"
-- commitlint.config.js
-- desktop.ini
-- docker-compose.prod.yml
-- docker-compose.yml
-- docs/
-- e2e/
-- eslint.config.js
-- migrations/
-- package-lock.json
-- package.json
-- playwright.config.ts
-- scripts/
-- src/
-- tests/
-- tsconfig.json
-- uploads/
-- vitest.config.ts
+- M README.md
+- M src/routes/onboarding.ts
+- M src/services/onboardingService.ts
+- M tests/api.test.ts
+- migrations/011_profile_questionnaire.sql
 
 Operating rules:
 

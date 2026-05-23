@@ -2,53 +2,27 @@
 
 ## Reason
 
-workflow installed and validated
+phase c questionnaire foundation complete
 
 ## Current milestone
 
-workflow-install
+phase-c
 
 ## Current subtask
 
-Install Codex workflow pack
+Rich profile questionnaire foundation
 
 ## Branch
 
-master
+main
 
 ## Changed files
 
-- .dockerignore
-- .env.example
-- .env.production.example
-- .gitignore
-- .husky/
-- .prettierrc.json
-- AGENTS.md
-- ARTEMIS_CODEX_DEPLOYMENT_PIPELINE.md
-- Caddyfile
-- Dockerfile
-- NEXT_CODEX_PROMPT.md
-- README.md
-- agents/
-- "artemis-federated-cultural-backend (3).zip"
-- commitlint.config.js
-- desktop.ini
-- docker-compose.prod.yml
-- docker-compose.yml
-- docs/
-- e2e/
-- eslint.config.js
-- migrations/
-- package-lock.json
-- package.json
-- playwright.config.ts
-- scripts/
-- src/
-- tests/
-- tsconfig.json
-- uploads/
-- vitest.config.ts
+- M README.md
+- M src/routes/onboarding.ts
+- M src/services/onboardingService.ts
+- M tests/api.test.ts
+- migrations/011_profile_questionnaire.sql
 
 ## Commands run
 

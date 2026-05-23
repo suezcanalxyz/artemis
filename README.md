@@ -8,6 +8,7 @@ Artemis is a workspace for artists and studios that currently includes:
 - M3 publishing surface: subdomains, custom domains, verification, Caddy ask, health checks
 - M4A vertical slice: Artist Operating Desk requests and deterministic placeholder opportunity ingestion
 - M4B verified source intake: source registry, opportunity review states, verified opportunity attachment to requests
+- Phase C foundation: richer onboarding profile questionnaire with strategic, language, collaboration, and privacy fields
 
 Current primary routes:
 
@@ -90,3 +91,4 @@ Notes:
 - Request types in this slice are `opportunity_research`, `funding_research`, `tech_rider`, `procedure`, `presentation`, and `website_update`.
 - Verified opportunities can be attached to requests as explicit provenance.
 - `docker compose up --build` now produces a production-style app container that serves the built frontend and backend from the same process behind Caddy.
+- Onboarding status now persists richer profile questionnaire fields such as professional focus, practice areas, working languages, strategic goals, collaboration interests, and privacy mode.
